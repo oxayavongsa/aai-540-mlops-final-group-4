@@ -1,0 +1,15 @@
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+xgboost
+jupyter
+notebook
+shap
+boto3
+
+Option:
+ipywidgets
+joblib
+tqdm
