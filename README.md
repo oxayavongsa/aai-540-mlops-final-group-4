@@ -1,7 +1,7 @@
 
 # 🫀 Aorta Guard: Cardiovascular Disease Detection Pipeline
 
-This repository contains the full end-to-end machine learning pipeline for predicting cardiovascular disease. The project is built for the AAI-540 course and demonstrates data engineering, feature engineering, model training, evaluation, and deployment readiness.
+This repository contains the full end-to-end machine learning pipeline for predicting cardiovascular disease. The project is built for the AAI-540 MLOps course and demonstrates data engineering, feature engineering, model training, evaluation, and deployment readiness.
 
 ---
 
@@ -32,7 +32,7 @@ All splits ensure balanced representation of the `cardio` target using stratifie
 
 ## 📊 Visual Insights Summary
 
-- **BMI Distribution**: Higher BMI is associated with greater risk of cardiovascular disease.
+- **BMI Distribution**: Higher BMI is associated with a greater risk of cardiovascular disease.
 - **Blood Pressure Categories**: Cardio-positive patients tend to fall in Stage 1 and Stage 2 categories.
 - **BMI Category**: Obesity and overweight statuses are more common in the cardio-positive class.
 - **Age Groups**: Risk increases notably in patients aged 50 and older.
@@ -46,15 +46,5 @@ All splits ensure balanced representation of the `cardio` target using stratifie
 **Group 4: AAI-540 ML Design Project**  
 - Prema Mallikarjunan  
 - Outhai Xayavongsa (Team Lead)
-
----
-
-## 📅 Timeline
-
-- **Project Kickoff**: Week 2  
-- **Data Engineering & Splits**: Week 3  
-- **Model Development**: Week 4  
-- **Deployment & Monitoring Plan**: Week 5-6  
-- **Final Submission**: June 23, 2025
 
 ---
