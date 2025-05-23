@@ -1,76 +1,60 @@
-# Aorta Guard 🫀
 
-##📊 Project Overview
+# 🫀 Aorta Guard: Cardiovascular Disease Detection Pipeline
 
-Aorta Guard is a machine learning system developed to predict the risk of cardiovascular disease (CVD) using anonymized clinical and lifestyle data. The project focuses on early detection and proactive intervention to prevent heart-related incidents before symptoms occur. By leveraging data from routine checkups such as blood pressure, cholesterol, glucose, and lifestyle factors, we aim to shift healthcare from reactive care to preventive strategy.
+This repository contains the full end-to-end machine learning pipeline for predicting cardiovascular disease. The project is built for the AAI-540 course and demonstrates data engineering, feature engineering, model training, evaluation, and deployment readiness.
 
-##🔖 Repository Structure
+---
 
-.
-├── data_assets/                 # Raw and transformed datasets
-│   ├── cardio_train.csv
-│   ├── cardio_cleaned.csv
-│   └── cardio_final_preprocessed.csv
-│
-├── data_splits/                # Stratified data subsets for model training and simulation
-│   ├── train.csv
-│   ├── val.csv
-│   ├── test.csv
-│   └── prod.csv
-│
-├── notebooks/                  # Jupyter notebooks (EDA, preprocessing, modeling)
-│   ├── cardio_eda_after_preprocessing.ipynb
-│   ├── cardio_preprocessing.ipynb
-│   └── cardio_data_split.ipynb
-│
-├── models/                     # Model artifacts and saved weights
-├── outputs/                    # Visualizations, SHAP plots, reports
-└── README.md                   # Project documentation
+## 📂 Data Assets
 
-##📈 Visual Insights
+| **File Name**                    | **Label**              | **Shape**     | **Main Use Case**           | **Human-readable?** | **Notes**                                               |
+|----------------------------------|-------------------------|---------------|-----------------------------|----------------------|----------------------------------------------------------|
+| `cardio_train.csv`              | Original Dataset        | (70,000, 13)  | Starting point for pipeline | ✅ Yes               | Raw dataset from Kaggle; requires cleaning and parsing   |
+| `cardio_cleaned.csv`            | Cleaned Dataset         | (68,385, 12)  | EDA + Feature Engineering   | ✅ Yes               | Cleaned and transformed; interpretable values            |
+| `cardio_final_preprocessed.csv` | Preprocessed Dataset    | (69,961, 14)  | Final modeling input        | ❌ No                | Encoded, scaled, ready for ML model training             |
 
-BMI Distribution: Higher BMI values are associated with increased cardio risk.
+---
 
-Blood Pressure Categories: Most individuals with CVD fall into stage 1 or stage 2 hypertension.
+## 📂 Data Splits
 
-BMI Categories: Overweight and obese individuals show higher CVD incidence.
+These files are stratified subsets derived from the preprocessed dataset to simulate real-world deployment stages.
 
-Age Groups: Cardio risk rises significantly in age groups 50s, 60s, and 70+.
+| **File Name** | **Purpose**                         | **Split %** |
+|---------------|-------------------------------------|-------------|
+| `train.csv`   | Training the model                  | ~40%        |
+| `val.csv`     | Model tuning/validation             | ~10%        |
+| `test.csv`    | Final evaluation before deployment  | ~10%        |
+| `prod.csv`    | Reserved for production simulation  | ~40%        |
 
-Cholesterol/BMI Ratio: Higher ratios correspond to elevated cardio risk.
+All splits ensure balanced representation of the `cardio` target using stratified sampling.
 
-Pulse Pressure: Higher variability and median values among cardio-positive cases.
+---
 
-##⚙️ Tech Stack
+## 📊 Visual Insights Summary
 
-Python 3.12, pandas, scikit-learn, seaborn, matplotlib, boto3, AWS S3
+- **BMI Distribution**: Higher BMI is associated with greater risk of cardiovascular disease.
+- **Blood Pressure Categories**: Cardio-positive patients tend to fall in Stage 1 and Stage 2 categories.
+- **BMI Category**: Obesity and overweight statuses are more common in the cardio-positive class.
+- **Age Groups**: Risk increases notably in patients aged 50 and older.
+- **Cholesterol/BMI Ratio**: Slightly elevated in cardio-positive cases, suggesting metabolic concerns.
+- **Pulse Pressure**: Higher and more varied in patients with cardiovascular disease.
 
-Environment: JupyterLab + SageMaker Studio
+---
 
-##💡 Usage Notes
+## 🧠 Authors & Team
 
-Always begin with cardio_cleaned.csv for feature engineering.
+**Group 4: AAI-540 ML Design Project**  
+- Prema Mallikarjunan  
+- Outhai Xayavongsa (Team Lead)
 
-Use cardio_final_preprocessed.csv and corresponding data_splits/ files for model training.
+---
 
-Avoid using cardio_train.csv directly for modeling.
+## 📅 Timeline
 
-##🧱 Authors
+- **Project Kickoff**: Week 2  
+- **Data Engineering & Splits**: Week 3  
+- **Model Development**: Week 4  
+- **Deployment & Monitoring Plan**: Week 5-6  
+- **Final Submission**: June 23, 2025
 
-Group 4: Aorta Guard
-
-Outhai Xayavongsa (Team Lead)
-
-Prema Mallikarjunan
-
-##📅 Project Deadline
-
-June 23, 2025
-
-🔗 Key Links
-
-GitHub: Group 4 Repository
-
-Asana Board: Task Tracker
-
-Google Docs: Team Tracker
+---
