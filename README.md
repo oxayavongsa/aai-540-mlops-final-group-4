@@ -17,26 +17,28 @@ This is a binary classification problem, where the goal is to predict the presen
 
 ```bash
 ├── data_assets/
-│   ├── cardio_train.csv                  # Raw dataset from Kaggle
-│   ├── cardio_cleaned.csv                # Cleaned and interpretable version
-│   ├── cardio_final_preprocessed.csv     # Encoded and scaled version for modeling
-│   └── cardio_engineered.csv             # Added engineered features from domain knowledge
+│   ├── cardio_train.csv                            # Raw dataset from Kaggle
+│   ├── cardio_cleaned.csv                          # Cleaned and interpretable version
+│   ├── cardio_final_preprocessed.csv               # Encoded and scaled version for modeling
+│   └── cardio_engineered.csv                       # Added engineered features from domain knowledge
 │
 ├── data_splits/
-│   ├── cardio_train_split40%.csv         # Training set (~40%)
-│   ├── cardio_val_split10%.csv           # Validation set (~10%)
-│   ├── cardio_test_split10%.csv          # Test set (~10%)
-│   └── cardio_prod_split40%.csv          # Production reserve set (~40%)
+│   ├── cardio_train_split40%.csv                   # Training set (~40%)
+│   ├── cardio_val_split10%.csv                     # Validation set (~10%)
+│   ├── cardio_test_split10%.csv                    # Test set (~10%)
+│   └── cardio_prod_split40%.csv                    # Production reserve set (~40%)
 │
 ├── notebooks_pipeline/
-│   ├── cardio_data_split.ipynb           # Stratified data split logic
-│   ├── cardio_eda_and_feature_engineering.ipynb  # EDA and feature engineering
-│   └── cardio_preprocessing.ipynb        # Standardization, encoding, export
+│   ├── cardio_data_split.ipynb                     # Stratified data split logic
+│   ├── cardio_eda_and_feature_engineering.ipynb    # EDA and feature engineering
+│   └── cardio_preprocessing.ipynb                  # Standardization, encoding, export
 │
-├── cardio_feature_store_setup.ipynb      # Setup for SageMaker Feature Store - original data
-├── cardio_new_feature_store_setup.ipynb      # Setup for SageMaker Feature Store - new cleaned features data
-├── requirements.txt                      # Required packages for the pipeline
-├── README.md                             # Project documentation
+├── feature_store/
+│   ├── cardio_feature_store_setup.ipynb            # Setup for SageMaker Feature Store - original data
+│   └── cardio_new_feature_store_setup.ipynb        # Setup for SageMaker Feature Store - new cleaned features data
+│
+├── requirements.txt                                # Required packages for the pipeline
+├── README.md                                       # Project documentation
 ```
 ---
 ## 📊 Dataset Summary
