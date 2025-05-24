@@ -11,7 +11,8 @@ This repository contains the complete machine learning pipeline for detecting ca
 ├── data_assets/
 │   ├── cardio_train.csv                  # Raw dataset from Kaggle
 │   ├── cardio_cleaned.csv                # Cleaned and interpretable version
-│   └── cardio_final_preprocessed.csv     # Encoded and scaled version for modeling
+│   ├── cardio_final_preprocessed.csv     # Encoded and scaled version for modeling
+│   └── cardio_engineered.csv             # Added engineered features from domain knowledge
 │
 ├── data_splits/
 │   ├── cardio_train_split40%.csv         # Training set (~40%)
