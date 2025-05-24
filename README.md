@@ -35,7 +35,7 @@ This is a binary classification problem, where the goal is to predict the presen
 │
 ├── feature_store/
 │   ├── cardio_feature_store_setup.ipynb            # Setup for SageMaker Feature Store - original data
-│   └── cardio_new_feature_store_setup.ipynb        # Setup for SageMaker Feature Store - new cleaned features data
+│   └── cardio_engineered_feature_store_setup.ipynb # Setup for SageMaker Feature Store - cleaned and engineered feature data
 │
 ├── requirements.txt                                # Required packages for the pipeline
 ├── README.md                                       # Project documentation
