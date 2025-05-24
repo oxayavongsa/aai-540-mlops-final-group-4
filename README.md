@@ -40,13 +40,6 @@ This repository contains the complete machine learning pipeline for detecting ca
 | `cardio_final_preprocessed.csv` | Preprocessed Dataset  | (69,961, 14) | Encoded and scaled for model input              |
 | `cardio_engineered.csv`         | Feature-Augmented Set | (68,385, 22) | Added engineered features from domain knowledge |
 
-| File                        | Purpose                    | Percentage |
-| --------------------------- | -------------------------- | ---------- |
-| `cardio_train_split40%.csv` | Model training set         | 40%        |
-| `cardio_val_split10%.csv`   | Validation set             | 10%        |
-| `cardio_test_split10%.csv`  | Evaluation/test set        | 10%        |
-| `cardio_prod_split40%.csv`  | Production simulation data | 40%        |
-
 ---
 ## 🔀 Data Splits Overview
 | File                        | Purpose                    | Percentage |
