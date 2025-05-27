@@ -1,4 +1,3 @@
-
 # 🫀 Aorta Guard: Cardiovascular Disease Detection Pipeline
 
 This repository contains the complete machine learning pipeline for detecting cardiovascular disease using clinical and lifestyle indicators. Developed as part of the AAI-540 MLOps course, the project includes data ingestion, cleaning, feature engineering, model-ready preprocessing, data splitting, and infrastructure preparation.
@@ -8,7 +7,7 @@ This repository contains the complete machine learning pipeline for detecting ca
 
 [Dataset Source: Cardiovascular Disease Dataset on Kaggle](https://www.kaggle.com/datasets/sulianova/cardiovascular-disease-dataset/data)
 
-<I>Cardiovascular disease (CVD) remains the leading cause of death globally, yet many detection methods and clinical responses are still reactive, addressing issues only after symptoms emerge. This project tackles that gap by developing a machine learning model capable of predicting the likelihood of CVD before critical events like heart attacks or strokes occur. By analyzing routine health metrics—such as blood pressure, cholesterol, glucose levels, age, and lifestyle habits—we aim to uncover predictive patterns that enable earlier, data-driven interventions.
+<I>Cardiovascular disease (CVD) remains the leading cause of death globally, yet many detection methods and clinical responses are still reactive, addressing issues only after symptoms emerge. This project tackles that gap by developing a machine learning model capable of predicting the likelihood of CVD before critical events like heart attacks or strokes occur. By analyzing routine health metrics such as blood pressure, cholesterol, glucose levels, age, and lifestyle habits. We aim to uncover predictive patterns that enable earlier, data-driven interventions.
 
 This is a binary classification problem, where the goal is to predict the presence or absence of cardiovascular disease. Beyond prediction, the model empowers physicians to make preventive decisions, reduce emergency incidents, and improve long-term health outcomes. Our mission is to shift the standard of care from reactive treatment to proactive prevention using existing, accessible clinical data.</i>
 
