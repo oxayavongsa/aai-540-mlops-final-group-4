@@ -1,0 +1,16 @@
+MIT License
+
+Copyright (c) 2025 
+Prema Mallikarjunan & Outhai Xayavongsa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY.
+
+---
+
+**Dataset Notice:**
+
+This repository includes models trained on the Cardiovascular Disease Dataset (Svetlana Ulianova, 2019) obtained from [Kaggle](https://www.kaggle.com/datasets/sulianova/cardiovascular-disease-dataset). This dataset is provided under its own terms of use, and any reuse of the dataset must comply with Kaggle's licensing and data usage policies.
+
+The dataset is used here strictly for academic and research purposes. Redistribution of the raw dataset is not permitted within this repository. Users should download the dataset directly from Kaggle under the original license terms.
