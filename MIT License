@@ -18,7 +18,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Dataset Disclaimer
 
-This repository includes models trained on the Cardiovascular Disease Dataset (Svetlana Ulianova, 2020), 
+This repository includes models trained on the Cardiovascular Disease Dataset (Svetlana Ulianova, 2019), 
 obtained from [Kaggle](https://www.kaggle.com/datasets/sulianova/cardiovascular-disease-dataset). 
 The dataset is provided under its own licensing terms through Kaggle. Redistribution of the raw dataset 
 is not permitted within this repository.
