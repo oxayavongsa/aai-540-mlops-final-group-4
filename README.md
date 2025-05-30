@@ -32,7 +32,8 @@ This is a binary classification problem, where the goal is to predict the presen
 │
 ├── notebooks_pipeline/
 │   ├── Models/
-│   │   └── cardio_logistic_baseline.ipynb   # (Only logistic baseline here)
+│   │   ├── cardio_logistic_baseline.ipynb
+│   │   └── cardio_random_forest.ipynb
 │   ├── cardio_data_split_v3.ipynb
 │   ├── cardio_eda_and_feature_engineering.ipynb
 │   ├── cardio_logistic_baseline_complete.ipynb
