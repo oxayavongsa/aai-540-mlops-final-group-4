@@ -16,47 +16,54 @@ This is a binary classification problem, where the goal is to predict the presen
 
 ```bash
 ├── data_assets/
-│   ├── cardio_train.csv                            # Raw dataset from Kaggle
-│   ├── cardio_cleaned.csv                          # Cleaned and interpretable version
-│   ├── cardio_final_preprocessed.csv               # Encoded and scaled version for modeling
-│   └── cardio_engineered.csv                       # Added engineered features from domain knowledge
+│   ├── cardio_train.csv
+│   ├── cardio_cleaned.csv
+│   ├── cardio_engineered.csv
 │
 ├── data_splits/
-│   ├── cardio_train_split40%.csv                   # Training set (~40%)
-│   ├── cardio_val_split10%.csv                     # Validation set (~10%)
-│   ├── cardio_test_split10%.csv                    # Test set (~10%)
-│   └── cardio_prod_split40%.csv                    # Production reserve set (~40%)
-│
-├── notebooks_pipeline/
-│   ├── cardio_data_split.ipynb                     # Stratified data split logic
-│   ├── cardio_eda_and_feature_engineering.ipynb    # EDA and feature engineering
-│   └── cardio_preprocessing.ipynb                  # Standardization, encoding, export
+│   ├── cardio_train_split40%_v2.csv
+│   ├── cardio_val_split10%_v2.csv
+│   ├── cardio_test_split10%_v2.csv
+│   └── cardio_prod_split40%_v2.csv
 │
 ├── feature_store/
-│   ├── cardio_feature_store_setup.ipynb            # Setup for SageMaker Feature Store - original data
-│   └── cardio_engineered_feature_store_setup.ipynb # Setup for SageMaker Feature Store - cleaned and engineered feature data
+│   ├── cardio_feature_store_setup.ipynb
+│   └── cardio_engineered_feature_store_setup.ipynb
 │
-├── requirements.txt                                # Required packages for the pipeline
-├── README.md                                       # Project documentation
+├── notebooks_pipeline/
+│   ├── Models/
+│   │   └── cardio_logistic_baseline.ipynb   # (Only logistic baseline here)
+│   ├── cardio_data_split_v3.ipynb
+│   ├── cardio_eda_and_feature_engineering.ipynb
+│   ├── cardio_logistic_baseline_complete.ipynb
+│   ├── cardio_model_evaluation_compare.ipynb
+│   ├── cardio_preprocessing.ipynb
+│   └── cardio_random_forest_complete.ipynb
+│
+├── requirements.txt
+├── README.md
 ```
 ---
 ## 📊 Dataset Summary
 
-| File                            | Label                 | Shape        | Description                                     |
-| ------------------------------- | --------------------- | ------------ | ----------------------------------------------- |
-| `cardio_train.csv`              | Original Dataset      | (70,000, 13) | Raw dataset from Kaggle; requires cleaning      |
-| `cardio_cleaned.csv`            | Cleaned Dataset       | (68,385, 12) | Cleaned and filtered for EDA                    |
-| `cardio_final_preprocessed.csv` | Preprocessed Dataset  | (69,961, 14) | Encoded and scaled for model input              |
-| `cardio_engineered.csv`         | Feature-Augmented Set | (68,385, 22) | Added engineered features from domain knowledge |
+| File Path | Label | Shape | Description |
+| - | - | - | - |
+| `cardio_train.csv` | Original Dataset | (70,000, 13) | Raw dataset from Kaggle; requires cleaning |
+| `cardio_cleaned.csv` | Cleaned Dataset | (68,385, 12) | Cleaned and formatted for EDA and feature engineering |
+| `cardio_engineered.csv` | Engineered Dataset | (68,385, 24) | Feature engineered version including BMI, pulse pressure, interaction features |
+| `cardio_train_split40%_v2.csv` | Training Split (40%) | (27,355, 24) | Preprocessed dataset for model training |
+| `cardio_val_split10%_v2.csv` | Validation Split (10%) | (6,838, 24) | Dataset for model validation and tuning |
+| `cardio_test_split10%_v2.csv` | Test Split (10%) | (6,838, 24) | Dataset for final model evaluation |
+| `cardio_prod_split40%_v2.csv` | Production Reserve (40%) | (27,354, 24) | Reserved for future inference or deployment |
 
 ---
 ## 🔀 Data Splits Overview
 | File                        | Purpose                    | Percentage |
 | --------------------------- | -------------------------- | ---------- |
-| `cardio_train_split40%.csv` | Model training set         | 40%        |
-| `cardio_val_split10%.csv`   | Validation set             | 10%        |
-| `cardio_test_split10%.csv`  | Evaluation/test set        | 10%        |
-| `cardio_prod_split40%.csv`  | Production simulation data | 40%        |
+| `cardio_train_split40%_v2.csv` | Model training set         | 40%        |
+| `cardio_val_split10%_v2.csv`   | Validation set             | 10%        |
+| `cardio_test_split10%_v2.csv`  | Evaluation/test set        | 10%        |
+| `cardio_prod_split40%_v2.csv`  | Production simulation data | 40%        |
 
 ---
 ## 📊 Visual Insights Summary
