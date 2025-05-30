@@ -57,15 +57,6 @@ This is a binary classification problem, where the goal is to predict the presen
 | `cardio_prod_split40%_v2.csv` | Production Reserve (40%) | (27,354, 24) | Reserved for future inference or deployment |
 
 ---
-## 🔀 Data Splits Overview
-| File                        | Purpose                    | Percentage |
-| --------------------------- | -------------------------- | ---------- |
-| `cardio_train_split40%_v2.csv` | Model training set         | 40%        |
-| `cardio_val_split10%_v2.csv`   | Validation set             | 10%        |
-| `cardio_test_split10%_v2.csv`  | Evaluation/test set        | 10%        |
-| `cardio_prod_split40%_v2.csv`  | Production simulation data | 40%        |
-
----
 ## 📊 Visual Insights Summary
 * BMI Distribution: Higher BMI is associated with greater cardiovascular risk.
 * Blood Pressure Categories: Stage 1 and Stage 2 dominate in cardio-positive individuals.
@@ -77,11 +68,30 @@ This is a binary classification problem, where the goal is to predict the presen
 
 ---
 ## 🧠 Feature Engineering
-This pipeline engineered and transformed features based on the cleaned dataset. We removed outliers and converted variables into more insightful representations.
-* Used fields: All clinical, lifestyle, and demographic variables
-* Combined or bucketed: bp_category, bmi_category, age_group
+This pipeline engineered and transformed features based on the cleaned dataset. We removed outliers, performed feature interactions, categorical binning, and constructed clinically meaningful variables.
+* Input fields: Clinical, lifestyle, demographic variables
+* Categorical binning: bp_category, bmi_category, age_group
 * Engineered features: bmi, pulse_pressure, age_years, chol_bmi_ratio, lifestyle_score, age_gluc_interaction
-* Final output: cardio_engineered.csv stored in data_assets/
+* Final feature set: 24 features total
+* Final output file: cardio_engineered.csv stored in data_assets/
+
+### 🔬 Baseline Model: Logistic Regression
+
+- Algorithm: Logistic Regression (Scikit-learn)
+- Hyperparameters: Default (`max_iter=1000`, `random_state=42`)
+- Trained on: 40% Training Set
+- Validation AUC: 0.791
+- Validation Accuracy: 73%
+- Model file saved: `models/cardio_logistic_baseline.ipynb`
+
+### 🔬 Initial Model: Random Forest
+
+- Algorithm: Random Forest Classifier (Scikit-learn)
+- Hyperparameters: Default (`n_estimators=100`, `random_state=42`)
+- Trained on: 40% Training Set
+- Validation AUC: 0.797
+- Validation Accuracy: 73%
+- Model file saved: `models/cardio_random_forest_complete.ipynb`
 
 ## 🧪 Setup & Dependencies
 ### Requirements
