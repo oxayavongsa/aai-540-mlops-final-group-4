@@ -15,6 +15,8 @@ def model_fn(model_dir):
         return pickle.load(f)
 
 def input_fn(input_data, content_type):
+    if isinstance(input_data, bytes):
+        input_data = input_data.decode("utf-8")
     df = pd.read_csv(StringIO(input_data), header=None)
     df.columns = FEATURE_COLUMNS
     return df
