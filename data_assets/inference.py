@@ -1,18 +1,22 @@
-import pickle
+
 import pandas as pd
 from io import StringIO
+import joblib
+import os
 
-# Define feature columns (excluding cholesterol_label)
+# Define feature columns matching your final dataset (23 columns)
 FEATURE_COLUMNS = [
-    'bmi', 'pulse_pressure', 'chol_bmi_ratio', 'age_gluc_interaction', 'age_years',
-    'bp_category', 'bmi_category', 'age_group', 'age', 'gender',
-    'systolic_bp', 'diastolic_bp', 'cholesterol', 'gluc', 'smoke',
-    'alco', 'active', 'is_hypertensive', 'lifestyle_score'
+    'age', 'height_ft', 'weight_lbs', 'systolic_bp', 'diastolic_bp',
+    'cholesterol', 'gluc', 'smoke', 'alco', 'active', 'bmi',
+    'pulse_pressure', 'chol_bmi_ratio', 'height_in', 'age_years',
+    'is_hypertensive', 'age_gluc_interaction', 'lifestyle_score', 'gender',
+    'bp_category', 'bmi_category', 'age_group', 'cholesterol_label'
 ]
 
 def model_fn(model_dir):
-    with open(f"{model_dir}/logistic_model.pkl", "rb") as f:
-        return pickle.load(f)
+    import joblib
+    import os
+    return joblib.load(os.path.join(model_dir, "logistic_model.pkl"))
 
 def input_fn(input_data, content_type):
     df = pd.read_csv(StringIO(input_data), header=None)
