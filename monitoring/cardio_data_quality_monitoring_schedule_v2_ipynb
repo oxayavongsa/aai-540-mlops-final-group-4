@@ -1,0 +1,631 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "ec26218e-253f-41d1-9b9f-4dd81814f817",
+   "metadata": {},
+   "source": [
+    "## Implement Data Monitors"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "be3160e7-7737-41d3-9ef4-69c474caef83",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Imports\n",
+    "import boto3\n",
+    "import botocore\n",
+    "import json\n",
+    "from sagemaker import get_execution_role, Session\n",
+    "from sagemaker.sklearn.model import SKLearnModel\n",
+    "from sagemaker.model_monitor import DefaultModelMonitor, CronExpressionGenerator, DataCaptureConfig"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "85e93fa1-ab71-4574-80cb-96123032ae97",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Initialize session and role\n",
+    "session = Session()\n",
+    "role = get_execution_role()\n",
+    "region = 'us-east-1'\n",
+    "bucket = 'sagemaker-us-east-1-531690656306'"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "30e43c6c-ee5a-48a5-ac1d-59e2b873d87f",
+   "metadata": {},
+   "source": [
+    "### Check endpoint and json files"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "075c0769-1057-4493-ad2a-d00cade8efb1",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Baseline files found in S3:\n",
+      "cardio_data/baseline-results/constraints.json\n",
+      "cardio_data/baseline-results/statistics.json\n",
+      "Endpoint 'cardio-logistic-monitor-endpoint' found with status: InService\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Initialize clients\n",
+    "region = 'us-east-1'\n",
+    "s3 = boto3.client('s3', region_name=region)\n",
+    "sm_client = boto3.client('sagemaker', region_name=region)\n",
+    "\n",
+    "# --- Baseline File Check ---\n",
+    "bucket = 'sagemaker-us-east-1-531690656306'\n",
+    "prefix = 'cardio_data/baseline-results/'\n",
+    "\n",
+    "response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)\n",
+    "\n",
+    "if 'Contents' in response:\n",
+    "    files_found = [obj['Key'] for obj in response['Contents']]\n",
+    "    print(\"Baseline files found in S3:\")\n",
+    "    for file in files_found:\n",
+    "        print(file)\n",
+    "else:\n",
+    "    print(\"No baseline files found.\")\n",
+    "\n",
+    "# --- Endpoint Status Check ---\n",
+    "endpoint_name = 'cardio-logistic-monitor-endpoint'\n",
+    "\n",
+    "try:\n",
+    "    response = sm_client.describe_endpoint(EndpointName=endpoint_name)\n",
+    "    status = response['EndpointStatus']\n",
+    "    print(f\"Endpoint '{endpoint_name}' found with status: {status}\")\n",
+    "except sm_client.exceptions.ClientError as e:\n",
+    "    print(f\"Could not find endpoint '{endpoint_name}': {e}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5f2badd0-8bb6-455c-81c3-ebecdf4039df",
+   "metadata": {},
+   "source": [
+    "### Re-Create Endpoint if not found"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "386feae7-e6f9-4e6e-bc37-6127d261bc97",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Deleted endpoint: cardio-logistic-monitor-endpoint\n",
+      "Deleted endpoint config: cardio-logistic-monitor-endpoint\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Initialize SageMaker client\n",
+    "sm_client = boto3.client('sagemaker', region_name='us-east-1')\n",
+    "\n",
+    "# Define your endpoint name\n",
+    "endpoint_name = 'cardio-logistic-monitor-endpoint'\n",
+    "\n",
+    "# Delete the endpoint itself\n",
+    "try:\n",
+    "    sm_client.delete_endpoint(EndpointName=endpoint_name)\n",
+    "    print(f\"Deleted endpoint: {endpoint_name}\")\n",
+    "except sm_client.exceptions.ClientError as e:\n",
+    "    print(f\"Could not delete endpoint (might not exist): {e}\")\n",
+    "\n",
+    "# Delete the endpoint configuration\n",
+    "try:\n",
+    "    sm_client.delete_endpoint_config(EndpointConfigName=endpoint_name)\n",
+    "    print(f\"Deleted endpoint config: {endpoint_name}\")\n",
+    "except sm_client.exceptions.ClientError as e:\n",
+    "    print(f\"Could not delete endpoint config (might not exist): {e}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c842b778-7267-46a8-a125-6fd4f300b001",
+   "metadata": {},
+   "source": [
+    "### Deploy Endpoint"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "d2731922-03b8-4dcb-ab1d-c86b9593f97e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "------!Endpoint 'cardio-logistic-monitor-endpoint' successfully redeployed.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Model artifact and inference script\n",
+    "model_artifact = f's3://{bucket}/model/logistic_model.tar.gz'\n",
+    "entry_point = 'inference.py'\n",
+    "\n",
+    "# Create SKLearn model\n",
+    "sklearn_model = SKLearnModel(\n",
+    "    model_data=model_artifact,\n",
+    "    role=role,\n",
+    "    entry_point=entry_point,\n",
+    "    framework_version='0.23-1',\n",
+    "    sagemaker_session=session\n",
+    ")\n",
+    "\n",
+    "# Create Data Capture config\n",
+    "data_capture_config = DataCaptureConfig(\n",
+    "    enable_capture=True,\n",
+    "    sampling_percentage=100,\n",
+    "    destination_s3_uri=f's3://{bucket}/data-capture',\n",
+    "    capture_options=['Request', 'Response']\n",
+    ")\n",
+    "\n",
+    "# Deploy endpoint\n",
+    "sklearn_model.deploy(\n",
+    "    initial_instance_count=1,\n",
+    "    instance_type='ml.m5.xlarge',\n",
+    "    endpoint_name=endpoint_name,\n",
+    "    data_capture_config=data_capture_config\n",
+    ")\n",
+    "\n",
+    "print(f\"Endpoint '{endpoint_name}' successfully redeployed.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "85be815d-60ec-4bf7-88be-ee1638e040a4",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Endpoint 'cardio-logistic-monitor-endpoint' status: InService\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Verify that endpoint exist\n",
+    "response = sm_client.describe_endpoint(EndpointName=endpoint_name)\n",
+    "status = response['EndpointStatus']\n",
+    "print(f\"Endpoint '{endpoint_name}' status: {status}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d22af6be-b394-403a-a3c6-6d345c55c93c",
+   "metadata": {},
+   "source": [
+    "### Create Data Monitor Schedule"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "2864d896-24ee-4aca-b02b-34c36574b4cb",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Data monitor schedule 'cardio-data-monitor-schedule' successfully created.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create monitor object\n",
+    "monitor = DefaultModelMonitor(\n",
+    "    role=role,\n",
+    "    instance_count=1,\n",
+    "    instance_type='ml.m5.xlarge',\n",
+    "    volume_size_in_gb=20,\n",
+    "    max_runtime_in_seconds=1200,  # Safe shorter run time\n",
+    "    sagemaker_session=session\n",
+    ")\n",
+    "\n",
+    "# S3 Paths\n",
+    "baseline_output_uri = f's3://sagemaker-us-east-1-531690656306/cardio_data/baseline-results'\n",
+    "monitor_output_uri = f's3://sagemaker-us-east-1-531690656306/cardio_data/monitoring/reports'\n",
+    "\n",
+    "# Monitoring schedule\n",
+    "schedule_name = 'cardio-data-monitor-schedule'\n",
+    "\n",
+    "monitor.create_monitoring_schedule(\n",
+    "    monitor_schedule_name=schedule_name,\n",
+    "    endpoint_input=endpoint_name,\n",
+    "    output_s3_uri=monitor_output_uri,\n",
+    "    statistics=baseline_output_uri + '/statistics.json',\n",
+    "    constraints=baseline_output_uri + '/constraints.json',\n",
+    "    schedule_cron_expression=CronExpressionGenerator.daily(),\n",
+    "    enable_cloudwatch_metrics=True\n",
+    ")\n",
+    "\n",
+    "print(f\"Data monitor schedule '{schedule_name}' successfully created.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ea8f11bf-8900-49c8-b2f8-5e3dfa3ce0fb",
+   "metadata": {},
+   "source": [
+    "## Infrastructure Monitoring"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "ec3e191c-5fdc-4372-9951-c6d48e7281a4",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Alarm created for CPUUtilization\n",
+      "Alarm created for MemoryUtilization\n",
+      "Alarm created for DiskUtilization\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Initialize CloudWatch client\n",
+    "cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')\n",
+    "variant_name = 'AllTraffic'\n",
+    "\n",
+    "# Helper function to create alarms\n",
+    "def create_alarm(metric_name, threshold, comparison='GreaterThanThreshold'):\n",
+    "    alarm_name = f\"{endpoint_name}-{metric_name}-Alarm\"\n",
+    "\n",
+    "    response = cloudwatch.put_metric_alarm(\n",
+    "        AlarmName=alarm_name,\n",
+    "        MetricName=metric_name,\n",
+    "        Namespace='AWS/SageMaker',\n",
+    "        Dimensions=[\n",
+    "            {'Name': 'EndpointName', 'Value': endpoint_name},\n",
+    "            {'Name': 'VariantName', 'Value': variant_name}\n",
+    "        ],\n",
+    "        Statistic='Average',\n",
+    "        Period=300,\n",
+    "        EvaluationPeriods=1,\n",
+    "        Threshold=threshold,\n",
+    "        ComparisonOperator=comparison,\n",
+    "        ActionsEnabled=False,\n",
+    "        AlarmDescription=f\"Alarm when {metric_name} is above {threshold}%\"\n",
+    "    )\n",
+    "    print(f\"Alarm created for {metric_name}\")\n",
+    "\n",
+    "# Create CPU, Memory, Disk alarms\n",
+    "create_alarm('CPUUtilization', threshold=70)\n",
+    "create_alarm('MemoryUtilization', threshold=75)\n",
+    "create_alarm('DiskUtilization', threshold=80)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b0a1d7d0-e1cc-44c6-87de-df5fda03c142",
+   "metadata": {},
+   "source": [
+    "### Create CloudWatch Dashboard for Endpoint Monitoring"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "093fc4d2-8e1f-4951-8718-b117dd0370a1",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Dashboard 'cardio_endpoint_dashboard' created and updated.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Initialize CloudWatch client\n",
+    "cloudwatch = boto3.client('cloudwatch', region_name=region)\n",
+    "\n",
+    "# Set dashboard name and endpoint name\n",
+    "dashboard_name = \"cardio_endpoint_dashboard\"\n",
+    "endpoint_name = \"cardio-logistic-monitor-endpoint\"\n",
+    "variant_name = \"AllTraffic\"\n",
+    "\n",
+    "# Define dashboard widgets\n",
+    "widgets = [\n",
+    "    # 1. CPU Utilization\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 0, \"y\": 0, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"CPU Utilization\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"CPUUtilization\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    # 2. Memory Utilization\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 12, \"y\": 0, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Memory Utilization\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"MemoryUtilization\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    # 3. Disk Utilization\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 0, \"y\": 6, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Disk Utilization\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"DiskUtilization\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    # 4. Invocation Count\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 12, \"y\": 6, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Invocation Count\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"Invocations\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Sum\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    # 5. Model Latency\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 0, \"y\": 12, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Model Latency (ms)\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"ModelLatency\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    # 6. 5XX Errors\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 12, \"y\": 12, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"❌ Model Errors (5XX)\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"Invocation5XXErrors\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Sum\", \"region\": region\n",
+    "        }\n",
+    "    }\n",
+    "]\n",
+    "\n",
+    "# Create or update the dashboard\n",
+    "response = cloudwatch.put_dashboard(\n",
+    "    DashboardName=dashboard_name,\n",
+    "    DashboardBody=json.dumps({\"widgets\": widgets})\n",
+    ")\n",
+    "\n",
+    "print(f\"Dashboard '{dashboard_name}' created and updated.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "fb86cac2-0a32-4b39-9b7a-a28c9d4a6051",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "cloudwatch_dashboard_setup.py file created.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create a local .py file from the CloudWatch dashboard code\n",
+    "dashboard_code = \"\"\"\n",
+    "import boto3\n",
+    "import json\n",
+    "\n",
+    "client = boto3.client('cloudwatch', region_name='us-east-1')\n",
+    "\n",
+    "dashboard_name = \"cardio_endpoint_dashboard\"\n",
+    "endpoint_name = \"cardio-logistic-monitor-endpoint\"\n",
+    "variant_name = \"AllTraffic\"\n",
+    "region = \"us-east-1\"\n",
+    "\n",
+    "widgets = [\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 0, \"y\": 0, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"CPU Utilization\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"CPUUtilization\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 12, \"y\": 0, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Memory Utilization\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"MemoryUtilization\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 0, \"y\": 6, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Disk Utilization\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"DiskUtilization\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 12, \"y\": 6, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Invocation Count\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"Invocations\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Sum\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 0, \"y\": 12, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Model Latency (ms)\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"ModelLatency\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Average\", \"region\": region\n",
+    "        }\n",
+    "    },\n",
+    "    {\n",
+    "        \"type\": \"metric\",\n",
+    "        \"x\": 12, \"y\": 12, \"width\": 12, \"height\": 6,\n",
+    "        \"properties\": {\n",
+    "            \"title\": \"Model Errors (5XX)\",\n",
+    "            \"metrics\": [\n",
+    "                [ \"AWS/SageMaker\", \"Invocation5XXErrors\", \"EndpointName\", endpoint_name, \"VariantName\", variant_name ]\n",
+    "            ],\n",
+    "            \"period\": 300, \"stat\": \"Sum\", \"region\": region\n",
+    "        }\n",
+    "    }\n",
+    "]\n",
+    "\n",
+    "response = client.put_dashboard(\n",
+    "    DashboardName=dashboard_name,\n",
+    "    DashboardBody=json.dumps({\"widgets\": widgets})\n",
+    ")\n",
+    "\n",
+    "print(f\"Dashboard '{dashboard_name}' created and uploaded.\")\n",
+    "\"\"\"\n",
+    "\n",
+    "# Write to local file\n",
+    "with open('cloudwatch_dashboard_setup.py', 'w') as f:\n",
+    "    f.write(dashboard_code)\n",
+    "\n",
+    "print(\"cloudwatch_dashboard_setup.py file created.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "87aa8f28-f65e-405c-93f7-3e44f3179d35",
+   "metadata": {},
+   "source": [
+    "### Save files into s3 bucket"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "e1e9746d-41cd-48d1-9452-a6b4923cda56",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "upload: ./cardio_model_monitoring.ipynb to s3://sagemaker-us-east-1-531690656306/cardio_project/cardio_data_quality_monitoring_schedule_v2.ipynb\n",
+      "upload: ./cloudwatch_dashboard_setup.py to s3://sagemaker-us-east-1-531690656306/cardio_project/cloudwatch_dashboard_setup.py\n",
+      "Both .ipynb and .py files successfully saved to S3.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Your bucket and folder\n",
+    "bucket = 'sagemaker-us-east-1-531690656306'\n",
+    "folder = 'cardio_project/'\n",
+    "\n",
+    "# Save notebook (.ipynb)\n",
+    "!aws s3 cp cardio_model_monitoring.ipynb s3://{bucket}/{folder}cardio_data_quality_monitoring_schedule_v2.ipynb\n",
+    "\n",
+    "# Save standalone python script (.py)\n",
+    "!aws s3 cp cloudwatch_dashboard_setup.py s3://{bucket}/{folder}cloudwatch_dashboard_setup.py\n",
+    "\n",
+    "print(\"Both .ipynb and .py files successfully saved to S3.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c183c189-0d3d-426e-b55f-6cf94ce88fef",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8055c80f-ea00-460f-9da4-a0da342eb6e0",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python (sagemaker-env)",
+   "language": "python",
+   "name": "sagemaker-env"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.12"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
