@@ -73,7 +73,7 @@ We aim to shift from reactive care to proactive prevention using accessible, str
 │   ├── cardio_final_model.ipynb                             # Completed Final Notebook
 │   └── cardio_inference_transform_job_v2.ipynb
 │
-├── requirements.txt                                         pip install -r requirements.txt
+├── requirements.txt                                        
 ├── MIT License
 └── README.md
 ```
@@ -223,6 +223,7 @@ response = runtime.invoke_endpoint(
 
 prediction = response["Body"].read().decode("utf-8")
 print("Prediction:", prediction.strip())
+```
 
 ---
 
