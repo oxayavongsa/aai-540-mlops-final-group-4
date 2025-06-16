@@ -1,0 +1,185 @@
+{
+  "version" : 0.0,
+  "features" : [ {
+    "name" : "age",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "gender",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "height_ft",
+    "inferred_type" : "Fractional",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "weight_lbs",
+    "inferred_type" : "Fractional",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "systolic_bp",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "diastolic_bp",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "cholesterol",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "gluc",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "smoke",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "alco",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "active",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "cardio",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "bmi",
+    "inferred_type" : "Fractional",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "age_group",
+    "inferred_type" : "String",
+    "completeness" : 1.0,
+    "string_constraints" : {
+      "domains" : [ "40s", "30s", "60s", "50s", "<30" ]
+    }
+  }, {
+    "name" : "cholesterol_label",
+    "inferred_type" : "String",
+    "completeness" : 1.0,
+    "string_constraints" : {
+      "domains" : [ "Well Above Normal", "Normal", "Above Normal" ]
+    }
+  }, {
+    "name" : "pulse_pressure",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : false
+    }
+  }, {
+    "name" : "chol_bmi_ratio",
+    "inferred_type" : "Fractional",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "height_in",
+    "inferred_type" : "Fractional",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "age_years",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "is_hypertensive",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "bp_category",
+    "inferred_type" : "String",
+    "completeness" : 1.0,
+    "string_constraints" : {
+      "domains" : [ "stage2", "normal", "stage1", "elevated" ]
+    }
+  }, {
+    "name" : "bmi_category",
+    "inferred_type" : "String",
+    "completeness" : 1.0,
+    "string_constraints" : {
+      "domains" : [ "normal", "obese", "overweight", "underweight" ]
+    }
+  }, {
+    "name" : "age_gluc_interaction",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : true
+    }
+  }, {
+    "name" : "lifestyle_score",
+    "inferred_type" : "Integral",
+    "completeness" : 1.0,
+    "num_constraints" : {
+      "is_non_negative" : false
+    }
+  } ],
+  "monitoring_config" : {
+    "evaluate_constraints" : "Enabled",
+    "emit_metrics" : "Enabled",
+    "datatype_check_threshold" : 1.0,
+    "domain_content_threshold" : 1.0,
+    "distribution_constraints" : {
+      "perform_comparison" : "Enabled",
+      "comparison_threshold" : 0.1,
+      "comparison_method" : "Robust",
+      "categorical_comparison_threshold" : 0.1,
+      "categorical_drift_method" : "LInfinity"
+    }
+  }
+}
