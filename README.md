@@ -1,6 +1,6 @@
 # 🫀 Aorta Guard: Cardiovascular Disease Detection Pipeline
 
-This repository contains the complete machine learning pipeline for detecting cardiovascular disease using clinical and lifestyle indicators. Developed as part of the AAI-540 MLOps course, the project includes data ingestion, cleaning, feature engineering, model training, batch inference, feature store setup, and SageMaker + CloudWatch monitoring.
+This repository contains the machine learning pipeline for detecting cardiovascular disease using clinical and lifestyle indicators. Developed as part of the AAI-540 MLOps course, the project includes data ingestion, cleaning, feature engineering, model training, batch inference, feature store setup, and SageMaker + CloudWatch monitoring.
 
 ---
 
@@ -14,15 +14,15 @@ We aim to shift from reactive care to proactive prevention using accessible, str
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Structure for relevant files
 
 ```bash
+├── ci_cd/
+│   └── ci_cd_complete.ipynb
+│
 ├── cloudwatch_and_monitoring/
 │   ├── cardio_cloudwatch_and_data_reports.ipynb
-│   ├── cardio_data_and_infrastructure_monitors.ipynb
-│   ├── cardio_data_quality_monitoring_schedule.ipynb
-│   ├── cardio_delete_enpoint_and_monitoring_schedule.ipynb
-│   └── cardio_model_monitoring.ipynb
+│   └── cardio_mointoring_endpoint_scheduling.ipynb
 │
 ├── data_assets/
 │   ├── cloudwatch_files/
@@ -34,44 +34,25 @@ We aim to shift from reactive care to proactive prevention using accessible, str
 │   │   ├── cardio_train_split40.csv
 │   │   └── cardio_val_split10.csv
 │   ├── logistic/
-│   │   ├── cardio_prod_no_label.csv
 │   │   ├── inference.py
 │   │   ├── logistic_model.pkl
 │   │   └── logistic_model.tar.gz
 │   ├── random_forest/
-│   │   ├── cardio_prod_no_label_rf.csv
 │   │   ├── final_rf_model.tar.gz
 │   │   └── inference_rf.py
 │   ├── cardio_cleaned.csv
-│   ├── cardio_engineered.csv
-│   ├── cardio_engineered_clean.csv
-│   └── cardio_train.csv
+│   ├── cardio_engineered.csv                               # Cleaned & Engineered Dataset
+│   └── cardio_train.csv                                    # Original Dataset
 │
 ├── feature_store/
 │   └── cardio_engineered_feature_store_setup.ipynb
 │
-├── image_output/                                            # All Images contained in the Notebook
-│   ├── Final Model Feature Importance.png
-│   ├── confusion_matrix_comparison.png
-│   ├── roc_curve_comparison.png
-│   ├── precision_recall_curve_comparison.png
-│   ├── feature_importance-random_forest.png
-│   ├── permutation_feature_importances-lollipop_plot.png
-│   ├── class_distribution_of_cardio_outcome.png
-│   ├── age_distribution.png
-│   ├── bmi_distribution_by_cardio_outcome.png
-│   ├── bmi_dist_by_cardio_outcome_real_data.png
-│   ├── cholesterol_levels_by_cardio_outcome.png
-│   ├── pulse_chol_age_lifestyle_by_cardio_outcome.png
-│   ├── cloudwatch_results_3hr_060925.png
-│   └── cardio endpoint dashboard.png
+├── image_output/                                            # All Visuals used for this project
 │
 ├── notebooks_pipeline/
-│   ├── Models/
-│       ├── cardio_logistic_baseline_v2.ipynb
-│       └── cardio_random_forest.ipynb
+│   ├── Models/                                              # Logistic Baseline and Random Forest
 │   ├── cardio_final_model.ipynb                             # Completed Final Notebook
-│   └── cardio_inference_transform_job_v2.ipynb
+│   └── cardio_inference_transform_both_models.ipynb         # Batch Transform Job for both models
 │
 ├── requirements.txt                                        
 ├── MIT License
@@ -91,18 +72,22 @@ pip install -r requirements.txt
 
 ## 📊 Dataset Summary
 
-| File Path                         | Label                   | Shape        | Description                                                                 |
-|----------------------------------|--------------------------|--------------|-----------------------------------------------------------------------------|
-| `cardio_train.csv`               | Original Dataset         | (70,000, 13) | Raw dataset from Kaggle; includes label and all original features          |
-| `cardio_cleaned.csv`             | Cleaned Dataset          | (68,385, 12) | Cleaned version with outliers removed and improved formatting              |
-| `cardio_engineered.csv`          | Engineered Dataset       | (68,385, 24) | Includes clinical + engineered features (bmi, pulse pressure, etc.)        |
-| `cardio_engineered_clean.csv`    | Final Engineered Clean   | (68,385, 24) | Fully cleaned and engineered dataset for modeling                          |
-| `cardio_train_split40.csv`       | Training Split (40%)     | (27,355, 24) | Used to train both baseline and optimized models                           |
-| `cardio_val_split10.csv`         | Validation Split (10%)   | (6,838, 24)  | Used to validate and tune hyperparameters                                  |
-| `cardio_test_split10.csv`        | Test Split (10%)         | (6,838, 24)  | Used to evaluate final model performance                                   |
-| `cardio_prod_split40.csv`        | Production Reserve (40%) | (27,354, 24) | Held-out dataset for production inference and monitoring                   |
-| `cardio_prod_no_label.csv`       | Prod No-Label (Logistic) | (27,354, 23) | Inference-ready dataset for logistic regression (labels removed)          |
-| `cardio_prod_no_label_rf.csv`    | Prod No-Label (RF)       | (27,354, 23) | Inference-ready dataset for random forest model (labels removed)          |
+The following datasets were used throughout the Aorta Guard machine learning pipeline, including training, validation, testing, production inference, and monitoring. All files are organized under `data_assets/`:
+
+| File Path                                          | Label                          | Shape        | Description                                                                 |
+|---------------------------------------------------|--------------------------------|--------------|-----------------------------------------------------------------------------|
+| `data_splits/cardio_train_split40.csv`            | Training Split (40%)           | (27,355, 24) | Used to train both baseline and optimized models                           |
+| `data_splits/cardio_val_split10.csv`              | Validation Split (10%)         | (6,838, 24)  | Used to validate and tune hyperparameters                                  |
+| `data_splits/cardio_test_split10.csv`             | Test Split (10%)               | (6,838, 24)  | Used to evaluate final model performance                                   |
+| `data_splits/cardio_prod_split40.csv`             | Production Reserve (40%)       | (27,354, 24) | Held-out dataset for production inference and monitoring                   |
+| `data_splits/cardio_prod_no_label.csv`            | Prod No-Label (Logistic/RF)    | (27,354, 23) | Inference-ready dataset for production use (labels removed)               |
+| `data_splits/cardio_prod_split40_cat.csv`         | Production – Categorical Only  | (27,354, 23)  | Categorical columns subset (used for drift/bias monitoring)                |
+| `data_splits/cardio_prod_split40_num.csv`         | Production – Numeric Only      | (27,354, 23)  | Numerical columns subset (used for drift/bias monitoring)                  |
+| `data_splits/cardio_prod_split40_no_label.csv`    | Production – No Label Split    | (27,354, 23) | Alternate no-label version used in monitoring and transform jobs           |
+| `data_splits/cardio_column_mapping.json`          | Column Index Mapping           | —            | JSON file mapping index to column names for interpretability               |
+| `cloudwatch_files/statistics.json`                | Baseline Statistics            | —            | Generated by SageMaker Model Monitor for schema and distribution baseline  |
+| `cloudwatch_files/constraints.json`               | Data Constraints               | —            | Defines schema expectations and quality rules for monitoring               |
+
 
 ## 📊 Visual Insights Summary
 
@@ -224,6 +209,21 @@ response = runtime.invoke_endpoint(
 prediction = response["Body"].read().decode("utf-8")
 print("Prediction:", prediction.strip())
 ```
+
+---
+
+## 🧠 System Architecture Overview
+
+The diagram below illustrates the full architecture of the **Aorta Guard: Machine Learning-Based Cardiovascular Risk Prediction System**, built on AWS SageMaker. It showcases how raw data stored in Amazon S3 flows through Athena queries, preprocessing in SageMaker notebooks, and into Feature Store for engineered feature versioning. The CI/CD pipeline automates model training, evaluation, and deployment, while batch inference jobs deliver risk predictions at scale. Post-deployment, the system leverages SageMaker Model Monitor and Amazon CloudWatch to ensure model quality, detect drift, and maintain infrastructure health. This modular, production-ready design supports data lineage, monitoring, and retraining workflows in a clinical decision support context.
+![Architecture Diagram](https://github.com/user-attachments/assets/24ced434-8732-41c9-96f2-7d22f3029548)
+
+---
+
+## 🎥 Presentation Video
+
+Watch our full project walkthrough below, showcasing the data pipeline, CI/CD integration, model training, deployment, and monitoring in action:
+
+[![Watch the video](https://img.youtube.com/vi/TadOY47Osu8/0.jpg)](https://youtu.be/TadOY47Osu8)
 
 ---
 
